@@ -3,23 +3,29 @@ import { addFavorite } from "@/redux/slices";
 import { AppStore } from "@/redux/store";
 import { Checkbox } from "@mui/material";
 import { DataGrid, GridRenderCellParams } from "@mui/x-data-grid";
-import { useState } from "react";
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 
 export const PeopleTable = () => {
     const pageSize = 5;
     const dispatch = useDispatch();
     const statePeople = useSelector((state: AppStore) => state.people)
+    const stateFavorites = useSelector((state: AppStore) => state.favorites)
     const [selectedPeople, setSelectedPeople] = useState<Person[]>([])
 
-    const findPerson = (person: Person) => !!selectedPeople.find(p => p.id === person.id)
-    const filterPerson = (person: Person) => selectedPeople.filter(p => p.id !== person.id)
+    const findPerson = (person: Person) => !!stateFavorites.find(p => p.id === person.id)
+    const filterPerson = (person: Person) => stateFavorites.filter(p => p.id !== person.id)
 
     const handleChange = (person: Person) => {
         const filteredPeople = findPerson(person) ? filterPerson(person) : [...selectedPeople, person]
         dispatch(addFavorite(filteredPeople))
         setSelectedPeople(filteredPeople)
     }
+
+    useEffect(() => {
+        setSelectedPeople(stateFavorites)
+    }, [stateFavorites])
+
     const columns = [
         {
             field: 'actions',
